@@ -195,15 +195,21 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var logger log.Logger
+
 func main() {
 	promlogConfig := promlog.Config{}
 	flag.AddFlags(kingpin.CommandLine, &promlogConfig)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
-	logger := promlog.New(&promlogConfig)
+	logger = promlog.New(&promlogConfig)
 	coordinator, err := NewCoordinator(logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "Coordinator initialization failed", "err", err)
+		os.Exit(1)
+	}
+
+	if setKubeDiscover() != nil {
 		os.Exit(1)
 	}
 

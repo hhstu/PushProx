@@ -16,6 +16,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -78,7 +79,23 @@ func (c *Coordinator) genID() (string, error) {
 	return id.String(), err
 }
 
+func getFqdn(fqdn string) string {
+	ip := net.ParseIP(fqdn)
+	if ip != nil {
+		podCidrs.Range(func(key, value interface{}) bool {
+			cidr := value.(*net.IPNet)
+			if cidr.Contains(ip) {
+				fqdn = key.(string)
+				return false
+			}
+			return true
+		})
+	}
+	return fqdn
+}
+
 func (c *Coordinator) getRequestChannel(fqdn string) chan *http.Request {
+	fqdn = getFqdn(fqdn)
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	ch, ok := c.waiting[fqdn]

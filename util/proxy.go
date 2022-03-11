@@ -34,7 +34,7 @@ func GetScrapeTimeout(maxScrapeTimeout, defaultScrapeTimeout *time.Duration, h h
 func GetHeaderTimeout(h http.Header) (time.Duration, error) {
 	timeoutSeconds, err := strconv.ParseFloat(h.Get("X-Prometheus-Scrape-Timeout-Seconds"), 64)
 	if err != nil {
-		return time.Duration(0 * time.Second), err
+		return 5 * time.Second, nil
 	}
 
 	return time.Duration(timeoutSeconds * 1e9), nil

@@ -111,6 +111,7 @@ func (c *Coordinator) handleErr(request *http.Request, client *http.Client, err 
 
 func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 	logger := log.With(c.logger, "scrape_id", request.Header.Get("id"))
+	level.Error(c.logger).Log("url", request.URL.String())
 	timeout, err := util.GetHeaderTimeout(request.Header)
 	if err != nil {
 		c.handleErr(request, client, err)
@@ -128,11 +129,13 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 		request.URL.RawQuery = params.Encode()
 	}
 
-	if request.URL.Hostname() != *myFqdn {
-		c.handleErr(request, client, errors.New("scrape target doesn't match client fqdn"))
-		return
+	if request.URL.Hostname() == *myFqdn {
+		request.URL.Host = "127.0.0.1:" + request.URL.Port()
 	}
-
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client.Transport = tr
 	scrapeResp, err := client.Do(request)
 	if err != nil {
 		msg := fmt.Sprintf("failed to scrape %s", request.URL.String())
