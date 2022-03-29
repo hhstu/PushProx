@@ -53,7 +53,7 @@ file\_sd\_configs can read and then then relabel as needed.
 ## How It Works
 
 ![Sequence diagram](./docs/sequence.svg)
-
+![Sequence diagram](./docs/img.png)
 Clients perform scrapes in a network environment that's not directly accessible by Prometheus. 
 The Proxy is accessible by both the Clients and Prometheus.
 Each client is identified by its fqdn.
