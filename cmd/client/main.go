@@ -111,7 +111,6 @@ func (c *Coordinator) handleErr(request *http.Request, client *http.Client, err 
 
 func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 	logger := log.With(c.logger, "scrape_id", request.Header.Get("id"))
-	level.Error(c.logger).Log("url", request.URL.String())
 	timeout, err := util.GetHeaderTimeout(request.Header)
 	if err != nil {
 		c.handleErr(request, client, err)
